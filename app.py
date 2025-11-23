@@ -44,23 +44,29 @@ class MLPProjection(nn.Module):
 # =========================================================
 # LOAD MODELS
 # =========================================================
+
 @st.cache_resource
 def load_bert():
     tokenizer = DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased")
     model = DistilBertModel.from_pretrained("distilbert-base-uncased")
     return tokenizer, model
 
-
 tokenizer, bert_model = load_bert()
-proj_layer = MLPProjection()
 
-# Load scaler statistics
+
+# Load scaler (mean & std)
 scaler_mean = np.load("models/scaler_mean.npy")
 scaler_std = np.load("models/scaler_std.npy")
 
-# Load Fusion Model
-FUSION_INPUT_DIM = 908
-fusion_model = FusionModel(FUSION_INPUT_DIM)
+
+# Load Projection Layer
+proj_layer = MLPProjection()
+proj_layer.load_state_dict(torch.load("models/mlp_projection.pth", map_location="cpu"))
+proj_layer.eval()
+
+
+# Load Fusion Model (908 input)
+fusion_model = FusionModel(908)
 fusion_model.load_state_dict(torch.load("models/fusion_model.pth", map_location="cpu"))
 fusion_model.eval()
 
@@ -74,15 +80,16 @@ def scale_numeric(x):
 
 
 def get_bert_embedding(text):
-    encoded = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=128)
+    encoded = tokenizer(text, return_tensors="pt",
+                        truncation=True, padding=True, max_length=128)
     with torch.no_grad():
         out = bert_model(**encoded)
     return out.last_hidden_state[:, 0, :].numpy()[0]
 
 
 def fusion_predict(bert_emb, mlp_emb, numeric_scaled):
-    combined = np.concatenate([bert_emb, mlp_emb, numeric_scaled], axis=0)
-    x = torch.tensor(combined, dtype=torch.float32).unsqueeze(0)
+    x = np.concatenate([bert_emb, mlp_emb, numeric_scaled], axis=0)
+    x = torch.tensor(x, dtype=torch.float32).unsqueeze(0)
     with torch.no_grad():
         return fusion_model(x).item()
 
@@ -150,7 +157,6 @@ def get_preset(name):
             "text": "Günüm sakit və enerjili keçdi, yaxşı hiss edirəm."
         },
     }
-
     return presets.get(name, None)
 
 
@@ -204,9 +210,10 @@ if st.sidebar.button("🔮 Proqnoz Et"):
 
     pred = fusion_predict(bert_emb, mlp_emb, numeric_scaled)
 
-    if pred < 3.3:
+    # STRESS LEVEL REAL SCALE (1–10)
+    if pred < 4:
         risk = "Aşağı"; color = "green"
-    elif pred < 6.6:
+    elif pred < 7:
         risk = "Orta"; color = "orange"
     else:
         risk = "Yüksək"; color = "red"
