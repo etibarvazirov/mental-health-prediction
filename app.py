@@ -7,13 +7,6 @@ from transformers import DistilBertTokenizerFast, DistilBertModel
 import matplotlib.pyplot as plt
 from PIL import Image
 
-# =========================================================
-#   STREAMLIT PAGE CONFIG (MÜTLƏQ İLK OPERATOR OLMALIDIR)
-# =========================================================
-st.set_page_config(
-    page_title="Stress və Psixoloji Sağlamlıq Proqnoz Sistemi",
-    layout="wide"
-)
 
 # =========================================================
 #                 MODEL ARXITEKTURALARI
