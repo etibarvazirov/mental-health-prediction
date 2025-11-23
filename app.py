@@ -25,7 +25,7 @@ st.markdown("---")
 
 @st.cache_resource
 def load_sleep_data():
-    df = pd.read_csv("data/Sleep_health_and_lifestyle_dataset.csv")
+    df = pd.read_csv("data/sleep_encoded.csv")
 
     # Blood Pressure-i parçala
     sbp_vals = []
