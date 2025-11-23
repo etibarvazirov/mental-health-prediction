@@ -257,24 +257,27 @@ if st.sidebar.button("🔮 Proqnoz Et"):
 
     st.markdown("---")
     st.subheader("📊 Analitik qrafiklər")
-
+    
     show_charts = st.checkbox("Qrafikləri göstər", value=False)
-
+    
     if show_charts:
-
-        col1, col2 = st.columns(2)
-        with col1:
-            st.image("images/fig4_shap_clean.png", caption="SHAP faktor təsirləri")
-        with col2:
-            st.image("images/fig1_prediction_vs_actual.png", caption="Prediction vs Actual")
-
-        col3, col4 = st.columns(2)
-        with col3:
-            st.image("images/fig3_pca.png", caption="PCA — mətn analizi")
-        with col4:
-            st.image("images/fig2_model_comparison.png", caption="Model müqayisəsi")
-
-        st.image("images/fusion_architecture.png", caption="Fusion Model Arxitekturası")
+        try:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.image("images/fig4_shap_clean.png", caption="SHAP faktor təsirləri")
+            with col2:
+                st.image("images/fig1_prediction_vs_actual.png", caption="Prediction vs Actual")
+    
+            col3, col4 = st.columns(2)
+            with col3:
+                st.image("images/fig3_pca.png", caption="PCA — mətn analizi")
+            with col4:
+                st.image("images/fig2_model_comparison.png", caption="Model müqayisəsi")
+    
+            st.image("images/fusion_architecture.png", caption="Fusion Model Arxitekturası")
+    
+        except Exception as e:
+            st.error(f"Qrafikləri göstərmək mümkün olmadı: {e}")
 
 
 else:
