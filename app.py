@@ -10,7 +10,37 @@ from transformers import DistilBertTokenizerFast, DistilBertModel
 # =========================================================
 st.set_page_config(page_title="Stress və Psixoloji Sağlamlıq Proqnozu", layout="wide")
 
-st.title("🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi")
+# =======================
+# CUSTOM HEADER (NAVBAR)
+# =======================
+st.markdown("""
+    <style>
+    .navbar {
+        background: linear-gradient(90deg, #7f5af0, #5f4bb6);
+        padding: 18px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .navbar h1 {
+        color: white;
+        font-size: 32px;
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    </style>
+
+    <div class="navbar">
+        <h1>🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi</h1>
+    </div>
+""", unsafe_allow_html=True)
+
+
+# st.title("🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi")
 st.write("""
 Bu sistem **Fusion Neural Network (BERT + MLP + Numeric Features)** modeli ilə
 yuxu, həyat tərzi və emosional mətn məlumatlarını birləşdirərək **stress səviyyəsini proqnozlaşdırır**.
