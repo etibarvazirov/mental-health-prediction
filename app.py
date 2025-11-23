@@ -179,19 +179,44 @@ def ui_value(field, default):
     return p[field] if p else default
 
 
-gender = ui_value("gender", st.sidebar.selectbox("Cins", ["Kişi", "Qadın"]))
-age = ui_value("age", st.sidebar.number_input("Yaş", 10, 100, 25))
-occupation = ui_value("occupation", st.sidebar.number_input("Peşə", 0, 20, 5))
-sleep = ui_value("sleep", st.sidebar.slider("Yuxu müddəti", 0.0, 12.0, 7.0))
-quality = ui_value("quality", st.sidebar.slider("Yuxu keyfiyyəti", 1, 10, 7))
-activity = ui_value("activity", st.sidebar.slider("Fiziki Aktivlik", 1, 10, 5))
-bmi = ui_value("bmi", st.sidebar.number_input("BMI", 0, 5, 2))
-hr = ui_value("hr", st.sidebar.number_input("Ürək döyüntüsü", 40, 130, 80))
-steps = ui_value("steps", st.sidebar.number_input("Günlük addım", 0, 30000, 5000))
-disorder = ui_value("disorder", st.sidebar.number_input("Yuxu pozuntusu", 0, 5, 0))
-sbp = ui_value("sbp", st.sidebar.number_input("Sistolik təzyiq", 80, 200, 120))
-dbp = ui_value("dbp", st.sidebar.number_input("Diastolik təzyiq", 40, 130, 80))
-text = ui_value("text", st.sidebar.text_area("Mətn:", ""))
+# ============================================================
+# SIDEBAR INPUT (preset seçiləndə inputlar gizlənir)
+# ============================================================
+
+manual_mode = (preset_name == "— Manual —")
+
+if manual_mode:
+    gender = st.sidebar.selectbox("Cins", ["Kişi", "Qadın"])
+    age = st.sidebar.number_input("Yaş", 10, 100, 25)
+    occupation = st.sidebar.number_input("Peşə", 0, 20, 5)
+    sleep = st.sidebar.slider("Yuxu müddəti", 0.0, 12.0, 7.0)
+    quality = st.sidebar.slider("Yuxu keyfiyyəti", 1, 10, 7)
+    activity = st.sidebar.slider("Fiziki Aktivlik", 1, 10, 5)
+    bmi = st.sidebar.number_input("BMI", 0, 5, 2)
+    hr = st.sidebar.number_input("Ürək döyüntüsü", 40, 130, 80)
+    steps = st.sidebar.number_input("Günlük addım", 0, 30000, 5000)
+    disorder = st.sidebar.number_input("Yuxu pozuntusu", 0, 5, 0)
+    sbp = st.sidebar.number_input("Sistolik təzyiq", 80, 200, 120)
+    dbp = st.sidebar.number_input("Diastolik təzyiq", 40, 130, 80)
+    text = st.sidebar.text_area("Mətn:", "")
+else:
+    p = get_preset(preset_name)
+    gender = p["gender"]
+    age = p["age"]
+    occupation = p["occupation"]
+    sleep = p["sleep"]
+    quality = p["quality"]
+    activity = p["activity"]
+    bmi = p["bmi"]
+    hr = p["hr"]
+    steps = p["steps"]
+    disorder = p["disorder"]
+    sbp = p["sbp"]
+    dbp = p["dbp"]
+    text = p["text"]
+
+    st.sidebar.success("Preset tətbiq olundu ✓\n\nDəyərlər avtomatik dolduruldu.")
+
 
 
 # ============================================================
