@@ -59,6 +59,8 @@ proj_layer = MLPProjection()
 FUSION_INPUT_DIM = 908  # 768 + 128 + 12
 fusion_model = FusionModel(FUSION_INPUT_DIM)
 fusion_model.load_state_dict(torch.load("models/fusion_model.pth", map_location="cpu"))
+st.write("Fusion model parameters:", sum(p.numel() for p in fusion_model.parameters()))  # <-------------- bura
+
 fusion_model.eval()
 
 # =========================================================
