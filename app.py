@@ -17,50 +17,6 @@ yuxu, həyat tərzi və emosional mətn məlumatlarını birləşdirərək **str
 """)
 st.markdown("---")
 
-st.markdown("""
-
-## 🎯 Layihənin Məqsədi
-Bu tətbiqin əsas məqsədi:
-- 🌟 Stressi erkən müəyyənləşdirmək  
-- 🚨 Yüksək riskli hallarda xəbərdarlıq təmin etmək  
-- 🧘‍♂️ Öyrənən və çalışan insanlar üçün psixoloji rifahı artırmaq
-
----
-
-## 🔍 Model nəyə əsaslanır?
-Süni intellekt modeli istifadəçidən aşağıdakı əsas məlumatları alır:
-
-- **😴 Yuxu müddəti (Sleep Duration)**
-- **🌙 Yuxu keyfiyyəti (Quality of Sleep)**
-- **💓 Ürək döyüntüsü (Heart Rate)**
-- **💪 Fiziki aktivlik səviyyəsi (Physical Activity Level)**
-- **🩸 Qan təzyiqi (Systolic / Diastolic BP)**
-- **✍️ Emosional mətn (BERT tekst analizi)**
-
-Bu 6 əsas faktor stress səviyyəsini müəyyən edən parametrlərin böyük hissəsini təşkil edir.
-
----
-
-## ⚙️ Model necə işləyir?
-Sistem üç ayrı komponentin gücünü birləşdirir:
-
-- **1) Numeric Features Model** — yuxu + aktivlik + təzyiq + ürək döyüntüsü  
-- **2) Text Emotion Model (BERT)** — istifadəçinin yazdığı mətnin emosional tonunu çıxarır  
-- **3) Fusion Model** — hər iki modelin nəticələrini birləşdirərək yekun stress göstərir  
-
----
-
-## 📊 Nəticələr
-Model çıxışı 0–1 arası olur və belə şərh edilir:
-
-- 🟢 **0.00 – 0.33 → Aşağı risk**
-- 🟡 **0.34 – 0.66 → Orta risk**
-- 🔴 **0.67 – 1.00 → Yüksək risk**
-
-Aşağıdakı bölmədən məlumatları daxil edin və stress səviyyənizi yoxlayın.
-""")
-
-
 
 # =========================================================
 # LOAD MODELS
@@ -139,57 +95,12 @@ def fusion_predict(text, numeric, sleep_duration):
 # PRESETS
 # =========================================================
 PRESETS = {
-    "Aşağı Stress": {
-        "sleep": 8.2,
-        "quality": 8,
-        "hr": 68,
-        "activity": 8,
-        "sbp": 112,
-        "dbp": 71,
-        "text": "Bu gün özümü çox rahat və pozitiv hiss edirəm."
-    },
-
-    "Orta Stress": {
-        "sleep": 6.1,
-        "quality": 5,
-        "hr": 80,
-        "activity": 4,
-        "sbp": 124,
-        "dbp": 82,
-        "text": "Bugün normal keçdi, amma bir az yorğunam."
-    },
-
-    "Yüksək Stress": {
-        "sleep": 4.2,
-        "quality": 3,
-        "hr": 103,
-        "activity": 2,
-        "sbp": 142,
-        "dbp": 94,
-        "text": "Çox stress altındayam, yuxusuzam, narahatlıq hiss edirəm."
-    },
-
-    "İmtahan stresli tələbə": {
-        "sleep": 4.8,
-        "quality": 4,
-        "hr": 89,
-        "activity": 2,
-        "sbp": 118,
-        "dbp": 76,
-        "text": "Sabah imtahanım var və çox stress hiss edirəm."
-    },
-
-    "İdmançı": {
-        "sleep": 7.6,
-        "quality": 9,
-        "hr": 58,
-        "activity": 10,
-        "sbp": 114,
-        "dbp": 66,
-        "text": "Məşq əla keçdi, enerjiliyəm."
-    }
+    "Aşağı Stress":        [0, 25, 3, 8, 8, 7, 1, 70, 8000, 0, 110, 70, "Bu gün əla hiss edirəm"],
+    "Orta Stress":         [1, 32, 5, 6, 5, 4, 2, 82, 4500, 1, 125, 80, "Bugün normal keçdi"],
+    "Yüksək Stress":       [1, 40, 7, 4, 3, 2, 3, 95, 2000, 1, 145, 95, "Son günlər çox stressliyəm"],
+    "İmtahan stresli tələbə": [0, 20, 1, 4.5, 4, 2, 1, 85, 2500, 0, 120, 75, "Sabah imtahanım var"],
+    "İdmançı":             [0, 28, 6, 7.5, 9, 10, 1, 60, 15000, 0, 115, 65, "Məşqlər yaxşı gedir"]
 }
-
 
 
 # =========================================================
@@ -203,168 +114,38 @@ preset_name = None
 if mode == "Preset":
     preset_name = st.sidebar.selectbox("Hazır ssenari seç:", list(PRESETS.keys()))
 
-st.markdown("""
----
-
-## ℹ️ Manual Dəyərlər Üçün Açıqlama
-
-Aşağıdakı parametrlər stress səviyyəsinin proqnozlaşdırılması üçün istifadə olunur.
-Hər dəyişənin mənası və tipik aralıqları belədir:
-
----
-
-### 😴 **Sleep Duration (Yuxu müddəti) — 0–12 saat**
-- 7–9 saat → sağlam aralıq  
-- 5–6 saat → orta risk  
-- 0–4 saat → yüksək stresslə korelyasiya edir  
-
----
-
-### 🌙 **Quality of Sleep (Yuxu keyfiyyəti) — 1–10**
-- 8–10 → keyfiyyətli yuxu  
-- 5–7 → orta yuxu  
-- 1–4 → qeyri-kafi, stres artır  
-
----
-
-### 💓 **Heart Rate (Ürək döyüntüsü) — 40–130 BPM**
-- 55–75 → normal  
-- 76–90 → orta  
-- 90+ → simptomatik stress və ya yorğunluq göstəricisi  
-
----
-
-### 💪 **Physical Activity Level — 1–10**
-- 1–3 → oturaq həyat tərzi  
-- 4–6 → orta aktivlik  
-- 7–10 → yüksək aktivlik (stressi azaldır)  
-
----
-
-### 🩸 **Blood Pressure (Sistolik / Diastolik)**
-- Normal: **110–120 / 70–80**  
-- Orta risk: **125–135 / 80–90**  
-- Yüksək risk: **140+ / 90+**
-
-Yüksək təzyiq stress proqnozunu artırır.
-
----
-
-### ✍️ **Text Input (Emosional təsvir)**
-Model mətnin emosional tonunu BERT ilə qiymətləndirir:
-
-- “özümü yaxşı hiss edirəm”, “enerjiliyəm” → stressi azaldır  
-- “narahatam”, “stres”, “yuxusuzam” → stressi artırır  
-
----
-
-### 👫 **Gender (Cins)**
-Modeldə cinsi yalnız binary şəkildə istifadə edirik:
-- Kişi → 0  
-- Qadın → 1  
-
-Cinsin təsiri minimaldır.
-
----
-
-### 💼 **Occupation (Peşə Kodu) — 0–20**
-Bu xüsusiyyət datasetdən gəlir və **sadəcə kateqoriya identifikatorudur**.
-Faktiki peşəni əks etdirmir, yalnız qrup kimi istifadə olunur.
-
-Təsir gücü çox zəifdir.
-
----
-
-### 🧍‍♂️ **BMI Category (0–5)**
-- 0 → Aşağı çəki  
-- 1 → Normal  
-- 2 → Yüngül artım  
-- 3 → Artıq çəki  
-- 4 → Obez  
-- 5 → Çox yüksək obezite  
-
-Stressə təsiri orta səviyyədədir.
-
----
-
-### 💤 **Sleep Disorder (0–5)**
-- 0 → Yoxdur  
-- 1–5 → Yüngül → Ağır pozuntu  
-
-Yuxu pozuntusu olduqda model stressi artırır.
-
----
-
-## 📌 Vacib Qeyd
-Model ən çox aşağıdakı 6 parametrdən təsirlənir:
-
-**Sleep Duration, Quality of Sleep, Heart Rate, Blood Pressure, Physical Activity, Text Emotion**
-
-Qalan dəyişənlərin təsiri zəifdir və əsasən dəstəkləyici rol oynayır.
-
----
-""")
-
 
 # =========================================================
 # INPUT AREA
 # =========================================================
 
 def input_block():
-    # Yalnız əsas 6 parametr
+    gender = st.selectbox("Cins", ["Kişi", "Qadın"])
+    gender = 1 if gender == "Qadın" else 0
 
-    sleep = st.number_input(
-        "😴 Yuxu müddəti (saat)", 
-        min_value=0.0, max_value=12.0, value=7.0, step=0.1
-    )
+    age = st.number_input("Yaş", 10, 100, 25)
+    occupation = st.number_input("Peşə kodu", 0, 20, 5)
+    sleep = st.slider("Yuxu müddəti", 0.0, 12.0, 7.0)
+    quality = st.slider("Yuxu keyfiyyəti", 1, 10, 7)
+    activity = st.slider("Fiziki aktivlik", 1, 10, 5)
+    bmi = st.number_input("BMI", 0, 5, 1)
+    hr = st.number_input("Ürək döyüntüsü", 40, 130, 80)
+    steps = st.number_input("Günlük addımlar", 0, 30000, 6000)
+    disorder = st.number_input("Yuxu pozuntusu", 0, 5, 0)
+    sbp = st.number_input("Sistolik təzyiq", 80, 200, 120)
+    dbp = st.number_input("Diastolik təzyiq", 50, 130, 80)
+    text = st.text_area("Mətn təsviri:", "Bu gün özümü normal hiss edirəm.")
 
-    quality = st.slider(
-        "🌙 Yuxu keyfiyyəti (1–10)", 
-        min_value=1, max_value=10, value=7
-    )
-
-    hr = st.number_input(
-        "💓 Ürək döyüntüsü (BPM)", 
-        min_value=40, max_value=130, value=75
-    )
-
-    activity = st.slider(
-        "💪 Fiziki aktivlik (1–10)", 
-        min_value=1, max_value=10, value=5
-    )
-
-    sbp = st.number_input(
-        "🩸 Sistolik təzyiq", 
-        min_value=80, max_value=200, value=120
-    )
-
-    dbp = st.number_input(
-        "🩸 Diastolik təzyiq", 
-        min_value=40, max_value=130, value=80
-    )
-
-    text = st.text_area(
-        "✍️ Emosional təsvir", 
-        "Bu gün özümü yaxşı hiss edirəm."
-    )
-
-    # Numeric values: modelə uyğun olaraq 6 dəyəri qaytarırıq
-    numeric = np.array([sleep, quality, hr, activity, sbp, dbp], dtype=float)
+    numeric = np.array([gender, age, occupation, sleep, quality, activity,
+                        bmi, hr, steps, disorder, sbp, dbp], dtype=float)
 
     return numeric, text, sleep
 
+
 if mode == "Preset":
-    preset = PRESETS[preset_name]
-    numeric_vals = np.array([
-        preset["sleep"],
-        preset["quality"],
-        preset["hr"],
-        preset["activity"],
-        preset["sbp"],
-        preset["dbp"]
-    ], dtype=float)
-    text_val = preset["text"]
-    sleep_val = preset["sleep"]
+    numeric_vals = np.array(PRESETS[preset_name][:12], dtype=float)
+    text_val = PRESETS[preset_name][12]
+    sleep_val = numeric_vals[3]
 else:
     numeric_vals, text_val, sleep_val = input_block()
 
@@ -373,7 +154,6 @@ else:
 # PREDICT BUTTON
 # =========================================================
 if st.button("🔮 Proqnoz Et"):
-
     pred = fusion_predict(text_val, numeric_vals, sleep_val)
 
     st.subheader("🔍 Nəticə")
@@ -386,13 +166,31 @@ if st.button("🔮 Proqnoz Et"):
 
     st.markdown("---")
 
+    show_plots = st.checkbox("📊 Qrafikləri göstər")
+    if show_plots:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.image("images/fig4_shap_clean.png")
+        with col2:
+            st.image("images/fig1_prediction_vs_actual.png")
 
+        col3, col4 = st.columns(2)
+        with col3:
+            st.image("images/fig3_pca.png")
+        with col4:
+            st.image("images/fig2_model_comparison.png")
+
+        st.image("images/fusion_architecture.png")
+
+
+else:
+    st.info("Proqnoz üçün ssenari seçin və ya dəyərləri daxil edin.")
 
 # =========================================================
-# 📊 QRAFİK ANALİTİKA — EXPANDER VERSİYASI 
+# 📊 QRAFİK ANALİTİKA — EXPANDER VERSİYASI (Disappearing problemi YOX)
 # =========================================================
 
-# st.markdown("---")
+st.markdown("---")
 st.subheader("📊 Analitik Qrafiklər")
 
 with st.expander("📌 Qrafikləri göstər (açmaq üçün klikləyin)"):
