@@ -4,24 +4,26 @@ import torch.nn as nn
 import numpy as np
 import pandas as pd
 from transformers import DistilBertTokenizerFast, DistilBertModel
-import matplotlib.pyplot as plt
 from PIL import Image
 
 
 # =========================================================
-#                 APP DIZAYNI BAŞLAYIR
+# STREAMLIT CONFIG — MUST BE FIRST STREAMLIT COMMAND
 # =========================================================
-
 st.set_page_config(page_title="Stress və Psixoloji Sağlamlıq Proqnozu",
                    layout="wide")
 
-st.title("🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi")
-st.write("Bu sistem yuxu, həyat tərzi və emosional məlumatlar əsasında stress səviyyəsini proqnozlaşdırır.")
-
-st.markdown("---")
 
 # =========================================================
-#                 MODEL ARXITEKTURALARI
+# TITLE & DESCRIPTION
+# =========================================================
+st.title("🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi")
+st.write("Bu sistem yuxu, həyat tərzi və emosional məlumatlar əsasında stress səviyyəsini proqnozlaşdırır.")
+st.markdown("---")
+
+
+# =========================================================
+# MODEL ARCHITECTURE
 # =========================================================
 
 class FusionModel(nn.Module):
@@ -31,13 +33,12 @@ class FusionModel(nn.Module):
             nn.Linear(input_dim, 256),
             nn.ReLU(),
             nn.Dropout(0.2),
-
             nn.Linear(256, 128),
             nn.ReLU(),
             nn.Dropout(0.2),
-
             nn.Linear(128, 1)
         )
+
     def forward(self, x):
         return self.net(x)
 
@@ -45,13 +46,14 @@ class FusionModel(nn.Module):
 class MLPProjection(nn.Module):
     def __init__(self):
         super().__init__()
-        self.proj = nn.Linear(1, 128)  # MLP → 128 dim
+        self.proj = nn.Linear(1, 128)
+
     def forward(self, x):
         return self.proj(x)
 
 
 # =========================================================
-#                 YÜKLƏNMƏ BÖLMƏSİ
+# LOAD BERT (cached for speed)
 # =========================================================
 
 @st.cache_resource
@@ -60,38 +62,52 @@ def load_bert():
     model = DistilBertModel.from_pretrained("distilbert-base-uncased")
     return tokenizer, model
 
-tokenizer, bert_model = load_bert()
 
-# MLP Projection Layer
+tokenizer, bert_model = load_bert()
 proj_layer = MLPProjection()
 
 
 # =========================================================
-#                 FUSION MODEL YARADILMASI
+# LOAD TRAINED FUSION MODEL (.pth)
 # =========================================================
 
-def build_fusion_model(n_numeric):
-    input_dim = 768 + 128 + n_numeric  # BERT + MLP + numeric
-    model = FusionModel(input_dim)
-    return model
+FUSION_INPUT_DIM = 908  # 768 BERT + 128 MLP + 12 numeric
+fusion_model = FusionModel(FUSION_INPUT_DIM)
 
-fusion_model = None  # initialize later
+fusion_model.load_state_dict(
+    torch.load("models/fusion_model.pth", map_location="cpu")
+)
+fusion_model.eval()
 
 
 # =========================================================
-#                 BERT EMBEDDING FUNKSIYASI
+# FUSION PREDICT FUNCTION
+# =========================================================
+
+def fusion_predict(bert_emb, mlp_emb, numeric_vals):
+    combined = np.concatenate([bert_emb, mlp_emb, numeric_vals], axis=0)
+    x = torch.tensor(combined, dtype=torch.float32).unsqueeze(0)
+
+    with torch.no_grad():
+        pred = fusion_model(x).item()
+
+    return pred
+
+
+# =========================================================
+# BERT EMBEDDING FUNCTION
 # =========================================================
 
 def get_bert_embedding(text):
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=128)
+    inputs = tokenizer(text, return_tensors="pt",
+                       truncation=True, padding=True, max_length=128)
     with torch.no_grad():
         outputs = bert_model(**inputs)
     return outputs.last_hidden_state[:, 0, :].numpy()[0]
 
 
-
 # =========================================================
-#                 SIDEBAR — INPUT FORM
+# SIDEBAR INPUT PANEL
 # =========================================================
 
 st.sidebar.header("📝 Məlumatları daxil edin")
@@ -109,57 +125,38 @@ disorder = st.sidebar.number_input("Yuxu pozuntusu (kodu)", 0, 5, 0)
 sbp = st.sidebar.number_input("Sistolik təzyiq", 80, 200, 120)
 dbp = st.sidebar.number_input("Diastolik təzyiq", 40, 130, 80)
 
-user_text = st.sidebar.text_area("Günlük əhval və stress barədə qısa təsvir yazın:",
-                                 "Bu gün özümü bir az yorğun hiss edirəm...")
+user_text = st.sidebar.text_area(
+    "Günlük əhval və stress barədə qısa təsvir yazın:",
+    "Bu gün özümü bir az yorğun hiss edirəm..."
+)
+
+
+# =========================================================
+# WHEN USER CLICKS "PREDICT"
+# =========================================================
 
 if st.sidebar.button("🔮 Proqnoz Et"):
-    # =========================================================
-    # NUMERIC FEATURES
-    # =========================================================
+
+    # Numeric array (12 features)
     numeric = np.array([
         1 if gender == "Qadın" else 0,
-        age,
-        occupation,
-        sleep_duration,
-        quality_sleep,
-        activity,
-        bmi,
-        heartrate,
-        steps,
-        disorder,
-        sbp,
-        dbp
+        age, occupation, sleep_duration,
+        quality_sleep, activity, bmi,
+        heartrate, steps, disorder,
+        sbp, dbp
     ], dtype=float)
 
-    numeric_tensor = torch.tensor(numeric, dtype=torch.float32).unsqueeze(0)
+    # MLP embedding
+    mlp_emb = proj_layer(torch.tensor([[sleep_duration]],
+                                     dtype=torch.float32)).detach().numpy()[0]
 
-    # =========================================================
-    # MLP EMBEDDINGS
-    # =========================================================
-    mlp_emb = proj_layer(torch.tensor([[sleep_duration]], dtype=torch.float32)).detach().numpy()[0]
-
-    # =========================================================
-    # BERT EMBEDDINGS
-    # =========================================================
+    # BERT embedding
     bert_emb = get_bert_embedding(user_text)
 
-    # =========================================================
-    # CONCAT ALL
-    # =========================================================
-    fusion_input = np.concatenate([bert_emb, mlp_emb, numeric])
-    fusion_input_tensor = torch.tensor(fusion_input, dtype=torch.float32).unsqueeze(0)
+    # Prediction
+    pred = fusion_predict(bert_emb, mlp_emb, numeric)
 
-    # Fusion model qurulur (input dim auto)
-    if fusion_model is None:
-        fusion_model = build_fusion_model(len(numeric))
-
-    fusion_model.eval()
-    with torch.no_grad():
-        pred = fusion_model(fusion_input_tensor).item()
-
-    # =========================================================
-    # RISK LEVEL
-    # =========================================================
+    # Risk level
     if pred < 0.33:
         risk = "Aşağı"
         color = "green"
@@ -170,10 +167,7 @@ if st.sidebar.button("🔮 Proqnoz Et"):
         risk = "Yüksək"
         color = "red"
 
-    # =========================================================
-    # RESULT PANEL
-    # =========================================================
-    st.subheader("🔍 Proqnoz nəticəsi")
+    st.subheader("🔍 Proqnoz Nəticəsi")
     st.markdown(f"""
     <div style='padding:15px; background-color:{color}; color:white; border-radius:10px;'>
         <h2>{risk} risk səviyyəsi</h2>
@@ -184,28 +178,29 @@ if st.sidebar.button("🔮 Proqnoz Et"):
     st.markdown("---")
 
     # =========================================================
-    # DASHBOARD QRAFIKLARI
+    # DASHBOARD VISUALS
     # =========================================================
 
     st.subheader("📊 Qrafik Analitika")
 
     col1, col2 = st.columns(2)
-
     with col1:
-        st.image("images/fig4_shap_clean.png", caption="SHAP — Faktorların təsir gücü")
-
+        st.image("images/fig4_shap_clean.png",
+                 caption="SHAP — Faktorların təsir gücü")
     with col2:
-        st.image("images/fig1_prediction_vs_actual.png", caption="Fusion Model — Prediction vs Actual")
+        st.image("images/fig1_prediction_vs_actual.png",
+                 caption="Prediction vs Actual")
 
     col3, col4 = st.columns(2)
-
     with col3:
-        st.image("images/fig3_pca.png", caption="BERT PCA — Emosional mətn analizi")
-
+        st.image("images/fig3_pca.png",
+                 caption="BERT PCA — Emosional mətn analizi")
     with col4:
-        st.image("images/fig2_model_comparison.png", caption="Modellərin ümumi müqayisəsi")
+        st.image("images/fig2_model_comparison.png",
+                 caption="Model müqayisəsi")
 
-    st.image("images/fusion_architecture.png", caption="Fusion Model Arxitekturası")
+    st.image("images/fusion_architecture.png",
+             caption="Fusion Model Arxitekturası")
 
 else:
     st.info("Proqnoz üçün məlumatları daxil edin və 'Proqnoz Et' düyməsinə basın.")
