@@ -192,20 +192,20 @@ if st.sidebar.button("🔮 Proqnoz Et"):
     col1, col2 = st.columns(2)
 
     with col1:
-        st.image("fig4_shap_clean.png", caption="SHAP — Faktorların təsir gücü")
+        st.image("images/fig4_shap_clean.png", caption="SHAP — Faktorların təsir gücü")
 
     with col2:
-        st.image("fig1_prediction_vs_actual.png", caption="Fusion Model — Prediction vs Actual")
+        st.image("images/fig1_prediction_vs_actual.png", caption="Fusion Model — Prediction vs Actual")
 
     col3, col4 = st.columns(2)
 
     with col3:
-        st.image("fig3_pca.png", caption="BERT PCA — Emosional mətn analizi")
+        st.image("images/fig3_pca.png", caption="BERT PCA — Emosional mətn analizi")
 
     with col4:
-        st.image("fig2_model_comparison.png", caption="Modellərin ümumi müqayisəsi")
+        st.image("images/fig2_model_comparison.png", caption="Modellərin ümumi müqayisəsi")
 
-    st.image("fusion_architecture.png", caption="Fusion Model Arxitekturası")
+    st.image("images/fusion_architecture.png", caption="Fusion Model Arxitekturası")
 
 else:
     st.info("Proqnoz üçün məlumatları daxil edin və 'Proqnoz Et' düyməsinə basın.")
