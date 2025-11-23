@@ -17,6 +17,50 @@ yuxu, həyat tərzi və emosional mətn məlumatlarını birləşdirərək **str
 """)
 st.markdown("---")
 
+st.markdown("""
+
+## 🎯 Layihənin Məqsədi
+Bu tətbiqin əsas məqsədi:
+- 🌟 Stressi erkən müəyyənləşdirmək  
+- 🚨 Yüksək riskli hallarda xəbərdarlıq təmin etmək  
+- 🧘‍♂️ Öyrənən və çalışan insanlar üçün psixoloji rifahı artırmaq
+
+---
+
+## 🔍 Model nəyə əsaslanır?
+Süni intellekt modeli istifadəçidən aşağıdakı əsas məlumatları alır:
+
+- **😴 Yuxu müddəti (Sleep Duration)**
+- **🌙 Yuxu keyfiyyəti (Quality of Sleep)**
+- **💓 Ürək döyüntüsü (Heart Rate)**
+- **💪 Fiziki aktivlik səviyyəsi (Physical Activity Level)**
+- **🩸 Qan təzyiqi (Systolic / Diastolic BP)**
+- **✍️ Emosional mətn (BERT tekst analizi)**
+
+Bu 6 əsas faktor stress səviyyəsini müəyyən edən parametrlərin böyük hissəsini təşkil edir.
+
+---
+
+## ⚙️ Model necə işləyir?
+Sistem üç ayrı komponentin gücünü birləşdirir:
+
+- **1) Numeric Features Model** — yuxu + aktivlik + təzyiq + ürək döyüntüsü  
+- **2) Text Emotion Model (BERT)** — istifadəçinin yazdığı mətnin emosional tonunu çıxarır  
+- **3) Fusion Model** — hər iki modelin nəticələrini birləşdirərək yekun stress göstərir  
+
+---
+
+## 📊 Nəticələr
+Model çıxışı 0–1 arası olur və belə şərh edilir:
+
+- 🟢 **0.00 – 0.33 → Aşağı risk**
+- 🟡 **0.34 – 0.66 → Orta risk**
+- 🔴 **0.67 – 1.00 → Yüksək risk**
+
+Aşağıdakı bölmədən məlumatları daxil edin və stress səviyyənizi yoxlayın.
+""")
+
+
 
 # =========================================================
 # LOAD MODELS
