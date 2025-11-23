@@ -15,6 +15,59 @@ st.write("""
 Bu sistem **Fusion Neural Network (BERT + MLP + Numeric Features)** modeli ilə
 yuxu, həyat tərzi və emosional mətn məlumatlarını birləşdirərək **stress səviyyəsini proqnozlaşdırır**.
 """)
+
+with st.expander("ℹ️ Proqram haqqında ətraflı məlumat — açmaq üçün klikləyin"):
+    st.markdown("""
+# 🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi
+
+Bu sistem yuxu müddəti, həyat tərzi, fiziki aktivlik və istifadəçinin öz emosional təsvirindən istifadə edərək 
+stress səviyyəsini proqnozlaşdıran süni intellekt modelidir. Model sağlamlıq göstəricilərini analiz edir və 
+risk səviyyəsini **Aşağı**, **Orta** və ya **Yüksək** kimi qiymətləndirir.
+
+---
+
+## 🎯 Layihənin Məqsədi
+Bu tətbiqin əsas məqsədi:
+- 🌟 Stressi erkən müəyyənləşdirmək  
+- 🚨 Yüksək riskli hallarda xəbərdarlıq təmin etmək  
+- 🧘‍♂️ Öyrənən və çalışan insanlar üçün psixoloji rifahı artırmaq
+
+---
+
+## 🔍 Model nəyə əsaslanır?
+Süni intellekt modeli istifadəçidən aşağıdakı əsas məlumatları alır:
+
+- **😴 Yuxu müddəti (Sleep Duration)**
+- **🌙 Yuxu keyfiyyəti (Quality of Sleep)**
+- **💓 Ürək döyüntüsü (Heart Rate)**
+- **💪 Fiziki aktivlik səviyyəsi (Physical Activity Level)**
+- **🩸 Qan təzyiqi (Systolic / Diastolic BP)**
+- **✍️ Emosional mətn (BERT tekst analizi)**
+
+Bu 6 əsas faktor stress səviyyəsini müəyyən edən parametrlərin böyük hissəsini təşkil edir.
+
+---
+
+## ⚙️ Model necə işləyir?
+Sistem üç ayrı komponentin gücünü birləşdirir:
+
+- **1) Numeric Features Model** — yuxu + aktivlik + təzyiq + ürək döyüntüsü  
+- **2) Text Emotion Model (BERT)** — istifadəçinin yazdığı mətnin emosional tonunu çıxarır  
+- **3) Fusion Model** — hər iki modelin nəticələrini birləşdirərək yekun stress göstərir  
+
+---
+
+## 📊 Nəticələr
+Model çıxışı 0–1 arası olur və belə şərh edilir:
+
+- 🟢 **0.00 – 0.33 → Aşağı risk**
+- 🟡 **0.34 – 0.66 → Orta risk**
+- 🔴 **0.67 – 1.00 → Yüksək risk**
+
+Aşağıdakı bölmədən məlumatları daxil edin və stress səviyyənizi yoxlayın.
+    """)
+
+
 st.markdown("---")
 
 
@@ -163,25 +216,6 @@ if st.button("🔮 Proqnoz Et"):
         st.warning(f"**Orta Risk** — Stress göstəricisi: {pred:.3f}")
     else:
         st.error(f"**Yüksək Risk** — Stress göstəricisi: {pred:.3f}")
-
-    st.markdown("---")
-
-    show_plots = st.checkbox("📊 Qrafikləri göstər")
-    if show_plots:
-        col1, col2 = st.columns(2)
-        with col1:
-            st.image("images/fig4_shap_clean.png")
-        with col2:
-            st.image("images/fig1_prediction_vs_actual.png")
-
-        col3, col4 = st.columns(2)
-        with col3:
-            st.image("images/fig3_pca.png")
-        with col4:
-            st.image("images/fig2_model_comparison.png")
-
-        st.image("images/fusion_architecture.png")
-
 
 else:
     st.info("Proqnoz üçün ssenari seçin və ya dəyərləri daxil edin.")
