@@ -158,6 +158,108 @@ preset_name = None
 if mode == "Preset":
     preset_name = st.sidebar.selectbox("Hazır ssenari seç:", list(PRESETS.keys()))
 
+st.markdown("""
+---
+
+## ℹ️ Manual Dəyərlər Üçün Açıqlama
+
+Aşağıdakı parametrlər stress səviyyəsinin proqnozlaşdırılması üçün istifadə olunur.
+Hər dəyişənin mənası və tipik aralıqları belədir:
+
+---
+
+### 😴 **Sleep Duration (Yuxu müddəti) — 0–12 saat**
+- 7–9 saat → sağlam aralıq  
+- 5–6 saat → orta risk  
+- 0–4 saat → yüksək stresslə korelyasiya edir  
+
+---
+
+### 🌙 **Quality of Sleep (Yuxu keyfiyyəti) — 1–10**
+- 8–10 → keyfiyyətli yuxu  
+- 5–7 → orta yuxu  
+- 1–4 → qeyri-kafi, stres artır  
+
+---
+
+### 💓 **Heart Rate (Ürək döyüntüsü) — 40–130 BPM**
+- 55–75 → normal  
+- 76–90 → orta  
+- 90+ → simptomatik stress və ya yorğunluq göstəricisi  
+
+---
+
+### 💪 **Physical Activity Level — 1–10**
+- 1–3 → oturaq həyat tərzi  
+- 4–6 → orta aktivlik  
+- 7–10 → yüksək aktivlik (stressi azaldır)  
+
+---
+
+### 🩸 **Blood Pressure (Sistolik / Diastolik)**
+- Normal: **110–120 / 70–80**  
+- Orta risk: **125–135 / 80–90**  
+- Yüksək risk: **140+ / 90+**
+
+Yüksək təzyiq stress proqnozunu artırır.
+
+---
+
+### ✍️ **Text Input (Emosional təsvir)**
+Model mətnin emosional tonunu BERT ilə qiymətləndirir:
+
+- “özümü yaxşı hiss edirəm”, “enerjiliyəm” → stressi azaldır  
+- “narahatam”, “stres”, “yuxusuzam” → stressi artırır  
+
+---
+
+### 👫 **Gender (Cins)**
+Modeldə cinsi yalnız binary şəkildə istifadə edirik:
+- Kişi → 0  
+- Qadın → 1  
+
+Cinsin təsiri minimaldır.
+
+---
+
+### 💼 **Occupation (Peşə Kodu) — 0–20**
+Bu xüsusiyyət datasetdən gəlir və **sadəcə kateqoriya identifikatorudur**.
+Faktiki peşəni əks etdirmir, yalnız qrup kimi istifadə olunur.
+
+Təsir gücü çox zəifdir.
+
+---
+
+### 🧍‍♂️ **BMI Category (0–5)**
+- 0 → Aşağı çəki  
+- 1 → Normal  
+- 2 → Yüngül artım  
+- 3 → Artıq çəki  
+- 4 → Obez  
+- 5 → Çox yüksək obezite  
+
+Stressə təsiri orta səviyyədədir.
+
+---
+
+### 💤 **Sleep Disorder (0–5)**
+- 0 → Yoxdur  
+- 1–5 → Yüngül → Ağır pozuntu  
+
+Yuxu pozuntusu olduqda model stressi artırır.
+
+---
+
+## 📌 Vacib Qeyd
+Model ən çox aşağıdakı 6 parametrdən təsirlənir:
+
+**Sleep Duration, Quality of Sleep, Heart Rate, Blood Pressure, Physical Activity, Text Emotion**
+
+Qalan dəyişənlərin təsiri zəifdir və əsasən dəstəkləyici rol oynayır.
+
+---
+""")
+
 
 # =========================================================
 # INPUT AREA
