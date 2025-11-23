@@ -14,25 +14,15 @@ st.set_page_config(
 )
 
 st.title("🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi")
-st.write("Bu sistem BERT + Numeric + MLP istifadə edərək stress səviyyəsini proqnozlaşdırır.")
+st.write("Bu sistem yuxu, həyat tərzi və emosional məlumatlar əsasında stress səviyyəsini proqnozlaşdırır.")
 st.markdown("---")
 
 
 # =========================================================
-# LOAD SCALER
-# =========================================================
-scaler_mean = np.load("models/scaler_mean.npy")
-scaler_std = np.load("models/scaler_std.npy")
-
-def scale_numeric(x):
-    return (x - scaler_mean) / scaler_std
-
-
-# =========================================================
-# FUSION MODEL (908-DIM)
+# MODEL ARCHITECTURES
 # =========================================================
 class FusionModel(nn.Module):
-    def __init__(self, input_dim=908):
+    def __init__(self, input_dim):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, 256), nn.ReLU(), nn.Dropout(0.2),
@@ -43,34 +33,6 @@ class FusionModel(nn.Module):
         return self.net(x)
 
 
-fusion_model = FusionModel(908)
-fusion_model.load_state_dict(torch.load("models/fusion_model.pth", map_location="cpu"))
-fusion_model.eval()
-
-
-# =========================================================
-# LOAD BERT
-# =========================================================
-@st.cache_resource
-def load_bert():
-    tokenizer = DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased")
-    model = DistilBertModel.from_pretrained("distilbert-base-uncased")
-    return tokenizer, model
-
-tokenizer, bert_model = load_bert()
-
-
-def get_bert_embedding(text):
-    encoded = tokenizer(text, return_tensors="pt",
-                        truncation=True, padding=True, max_length=128)
-    with torch.no_grad():
-        out = bert_model(**encoded)
-    return out.last_hidden_state[:, 0, :].numpy()[0]
-
-
-# =========================================================
-# MLP PROJECTION (Sleep Duration → 128 dim)
-# =========================================================
 class MLPProjection(nn.Module):
     def __init__(self):
         super().__init__()
@@ -78,7 +40,51 @@ class MLPProjection(nn.Module):
     def forward(self, x):
         return self.proj(x)
 
+
+# =========================================================
+# LOAD MODELS
+# =========================================================
+@st.cache_resource
+def load_bert():
+    tokenizer = DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased")
+    model = DistilBertModel.from_pretrained("distilbert-base-uncased")
+    return tokenizer, model
+
+
+tokenizer, bert_model = load_bert()
 proj_layer = MLPProjection()
+
+# Load scaler statistics
+scaler_mean = np.load("models/scaler_mean.npy")
+scaler_std = np.load("models/scaler_std.npy")
+
+# Load Fusion Model
+FUSION_INPUT_DIM = 908
+fusion_model = FusionModel(FUSION_INPUT_DIM)
+fusion_model.load_state_dict(torch.load("models/fusion_model.pth", map_location="cpu"))
+fusion_model.eval()
+
+
+# =========================================================
+# FUNCTIONS
+# =========================================================
+
+def scale_numeric(x):
+    return (x - scaler_mean) / scaler_std
+
+
+def get_bert_embedding(text):
+    encoded = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=128)
+    with torch.no_grad():
+        out = bert_model(**encoded)
+    return out.last_hidden_state[:, 0, :].numpy()[0]
+
+
+def fusion_predict(bert_emb, mlp_emb, numeric_scaled):
+    combined = np.concatenate([bert_emb, mlp_emb, numeric_scaled], axis=0)
+    x = torch.tensor(combined, dtype=torch.float32).unsqueeze(0)
+    with torch.no_grad():
+        return fusion_model(x).item()
 
 
 # =========================================================
@@ -86,28 +92,48 @@ proj_layer = MLPProjection()
 # =========================================================
 
 def get_preset(name):
-
     presets = {
+
+        "Aşağı Stress": {
+            "gender": "Kişi", "age": 25, "occupation": 3, "sleep": 8,
+            "quality": 8, "activity": 7, "bmi": 1, "hr": 70,
+            "steps": 8000, "disorder": 0, "sbp": 110, "dbp": 70,
+            "text": "Bu gün əla hiss edirəm, enerjim çoxdur."
+        },
+
+        "Orta Stress": {
+            "gender": "Qadın", "age": 32, "occupation": 5, "sleep": 6,
+            "quality": 5, "activity": 4, "bmi": 2, "hr": 82,
+            "steps": 4500, "disorder": 1, "sbp": 125, "dbp": 80,
+            "text": "Bugün normal keçdi, bir az yoruldum."
+        },
+
+        "Yüksək Stress": {
+            "gender": "Qadın", "age": 40, "occupation": 7, "sleep": 4,
+            "quality": 3, "activity": 2, "bmi": 3, "hr": 95,
+            "steps": 2000, "disorder": 1, "sbp": 145, "dbp": 95,
+            "text": "Son günlər çox stress hiss edirəm, yuxum qaçır."
+        },
 
         "Yuxusuzluq stressi": {
             "gender": "Kişi", "age": 29, "occupation": 4, "sleep": 3,
             "quality": 2, "activity": 3, "bmi": 2, "hr": 100,
             "steps": 3500, "disorder": 1, "sbp": 130, "dbp": 85,
-            "text": "Bu həftə yaxşı yata bilmədim, özümü pis hiss edirəm."
+            "text": "Bu həftə yaxşı yata bilmədim, başım ağrıyır."
         },
 
         "İş gərginliyi": {
             "gender": "Qadın", "age": 36, "occupation": 9, "sleep": 5,
             "quality": 4, "activity": 3, "bmi": 2, "hr": 90,
             "steps": 3000, "disorder": 0, "sbp": 140, "dbp": 88,
-            "text": "İşdə çox gərgin gün keçirdim, narahatlıq hiss edirəm."
+            "text": "İşdə çox gərgin gün keçirdim, narahatam."
         },
 
         "İmtahan stresli tələbə": {
-            "gender": "Kişi", "age": 20, "occupation": 1, "sleep": 4,
+            "gender": "Kişi", "age": 20, "occupation": 1, "sleep": 4.5,
             "quality": 4, "activity": 2, "bmi": 1, "hr": 85,
             "steps": 2500, "disorder": 0, "sbp": 120, "dbp": 75,
-            "text": "Sabah imtahan var və özümü gərgin hiss edirəm."
+            "text": "Sabah imtahanım var, çox stressliyəm."
         },
 
         "İdmançı": {
@@ -121,7 +147,7 @@ def get_preset(name):
             "gender": "Qadın", "age": 30, "occupation": 5, "sleep": 8,
             "quality": 9, "activity": 8, "bmi": 1, "hr": 68,
             "steps": 12000, "disorder": 0, "sbp": 110, "dbp": 70,
-            "text": "Günüm sakit keçdi və özümü yaxşı hiss edirəm."
+            "text": "Günüm sakit və enerjili keçdi, yaxşı hiss edirəm."
         },
     }
 
@@ -132,82 +158,71 @@ def get_preset(name):
 # SIDEBAR INPUTS
 # =========================================================
 
+st.sidebar.header("📝 Məlumatları daxil edin")
+
 preset_name = st.sidebar.selectbox(
-    "📌 Hazır ssenari seç",
-    ["— Manual —",
-     "Yuxusuzluq stressi",
-     "İş gərginliyi",
-     "İmtahan stresli tələbə",
-     "İdmançı",
-     "Sağlam həyat tərzi"]
+    "📌 Hazır ssenarilər",
+    ["— Manual —", "Aşağı Stress", "Orta Stress", "Yüksək Stress",
+     "Yuxusuzluq stressi", "İş gərginliyi",
+     "İmtahan stresli tələbə", "İdmançı", "Sağlam həyat tərzi"]
 )
 
 preset = get_preset(preset_name)
 
 gender = preset["gender"] if preset else st.sidebar.selectbox("Cins", ["Kişi", "Qadın"])
 age = preset["age"] if preset else st.sidebar.number_input("Yaş", 10, 100, 25)
-occupation = preset["occupation"] if preset else st.sidebar.number_input("Peşə", 0, 20, 5)
+occupation = preset["occupation"] if preset else st.sidebar.number_input("Peşə (kodu)", 0, 20, 5)
 sleep_duration = preset["sleep"] if preset else st.sidebar.slider("Yuxu müddəti", 0.0, 12.0, 7.0)
-quality = preset["quality"] if preset else st.sidebar.slider("Yuxu keyfiyyəti", 1, 10, 7)
-activity = preset["activity"] if preset else st.sidebar.slider("Fiziki aktivlik", 1, 10, 5)
-bmi = preset["bmi"] if preset else st.sidebar.number_input("BMI", 0, 5, 2)
-hr = preset["hr"] if preset else st.sidebar.number_input("Ürək döyüntüsü", 40, 130, 80)
-steps = preset["steps"] if preset else st.sidebar.number_input("Addım sayı", 0, 30000, 5000)
+quality_sleep = preset["quality"] if preset else st.sidebar.slider("Yuxu keyfiyyəti", 1, 10, 7)
+activity = preset["activity"] if preset else st.sidebar.slider("Fiziki Aktivlik", 1, 10, 5)
+bmi = preset["bmi"] if preset else st.sidebar.number_input("BMI Kateqoriyası", 0, 5, 2)
+heartrate = preset["hr"] if preset else st.sidebar.number_input("Ürək döyüntüsü", 40, 130, 80)
+steps = preset["steps"] if preset else st.sidebar.number_input("Günlük addım sayı", 0, 30000, 5000)
 disorder = preset["disorder"] if preset else st.sidebar.number_input("Yuxu pozuntusu", 0, 5, 0)
 sbp = preset["sbp"] if preset else st.sidebar.number_input("Sistolik təzyiq", 80, 200, 120)
 dbp = preset["dbp"] if preset else st.sidebar.number_input("Diastolik təzyiq", 40, 130, 80)
-
-user_text = preset["text"] if preset else st.sidebar.text_area("Mətn:", "Bu gün özümü yorğun hiss edirəm.")
+user_text = preset["text"] if preset else st.sidebar.text_area("Mətn:", "Bu gün özümü bir az yorğun hiss edirəm...")
 
 
 # =========================================================
-# PREDICTION
+# PREDICT BUTTON
 # =========================================================
 
 if st.sidebar.button("🔮 Proqnoz Et"):
 
-    numeric_raw = np.array([
+    numeric = np.array([
         1 if gender == "Qadın" else 0,
-        age, occupation, sleep_duration, quality,
-        activity, bmi, hr, steps,
+        age, occupation, sleep_duration, quality_sleep,
+        activity, bmi, heartrate, steps,
         disorder, sbp, dbp
     ], dtype=float)
 
-    numeric_scaled = scale_numeric(numeric_raw)
+    numeric_scaled = scale_numeric(numeric)
 
     mlp_emb = proj_layer(torch.tensor([[sleep_duration]], dtype=torch.float32)).detach().numpy()[0]
-
     bert_emb = get_bert_embedding(user_text)
 
-    fusion_input = np.concatenate([bert_emb, mlp_emb, numeric_scaled])
+    pred = fusion_predict(bert_emb, mlp_emb, numeric_scaled)
 
-    x = torch.tensor(fusion_input, dtype=torch.float32).unsqueeze(0)
-
-    with torch.no_grad():
-        pred = fusion_model(x).item()
-
-    stress_score = 1 + pred * 9
-
-    if pred < 0.33:
+    if pred < 3.3:
         risk = "Aşağı"; color = "green"
-    elif pred < 0.66:
+    elif pred < 6.6:
         risk = "Orta"; color = "orange"
     else:
         risk = "Yüksək"; color = "red"
 
+    st.subheader("🔍 Proqnoz nəticəsi")
     st.markdown(f"""
-    <div style='padding:15px; background-color:{color}; color:white; border-radius:10px;'>
-        <h2>{risk} risk səviyyəsi</h2>
-        <p>Stress göstəricisi (1–10): <b>{stress_score:.2f}</b></p>
-    </div>
+        <div style='padding:15px; background-color:{color}; color:white; border-radius:10px;'>
+            <h2>{risk} risk səviyyəsi</h2>
+            <p>Stress göstəricisi: <b>{pred:.3f}</b></p>
+        </div>
     """, unsafe_allow_html=True)
 
     st.markdown("---")
 
-    # =========================================================
-    # OPTIONAL DIAGRAMS
-    # =========================================================
-    if st.checkbox("📊 Qrafikləri göstər"):
+    if st.checkbox("📊 Qrafikləri göstər", value=True):
+
         col1, col2 = st.columns(2)
         with col1:
             st.image("images/fig4_shap_clean.png")
@@ -223,4 +238,4 @@ if st.sidebar.button("🔮 Proqnoz Et"):
         st.image("images/fusion_architecture.png")
 
 else:
-    st.info("Məlumatları daxil edin və düyməyə basın.")
+    st.info("Proqnoz üçün məlumatları daxil edin və düyməyə basın.")
