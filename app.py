@@ -9,6 +9,18 @@ from PIL import Image
 
 
 # =========================================================
+#                 APP DIZAYNI BAŞLAYIR
+# =========================================================
+
+st.set_page_config(page_title="Stress və Psixoloji Sağlamlıq Proqnozu",
+                   layout="wide")
+
+st.title("🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi")
+st.write("Bu sistem yuxu, həyat tərzi və emosional məlumatlar əsasında stress səviyyəsini proqnozlaşdırır.")
+
+st.markdown("---")
+
+# =========================================================
 #                 MODEL ARXITEKTURALARI
 # =========================================================
 
@@ -76,18 +88,6 @@ def get_bert_embedding(text):
         outputs = bert_model(**inputs)
     return outputs.last_hidden_state[:, 0, :].numpy()[0]
 
-
-# =========================================================
-#                 APP DIZAYNI BAŞLAYIR
-# =========================================================
-
-st.set_page_config(page_title="Stress və Psixoloji Sağlamlıq Proqnozu",
-                   layout="wide")
-
-st.title("🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi")
-st.write("Bu sistem yuxu, həyat tərzi və emosional məlumatlar əsasında stress səviyyəsini proqnozlaşdırır.")
-
-st.markdown("---")
 
 
 # =========================================================
