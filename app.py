@@ -374,18 +374,9 @@ else:
 # =========================================================
 if st.button("🔮 Proqnoz Et"):
 
-    # BERT embedding
-    bert_emb = get_bert_embedding(text_val)
-
-    # MLP projection (sleep duration → 128 dim)
-    mlp_input = torch.tensor([[sleep_val]], dtype=torch.float32)
-    mlp_emb = mlp_model(mlp_input).detach().numpy()[0]
-
-    # Fusion predict
-    pred = fusion_predict(bert_emb, mlp_emb, numeric_vals)
+    pred = fusion_predict(text_val, numeric_vals, sleep_val)
 
     st.subheader("🔍 Nəticə")
-
     if pred < 0.40:
         st.success(f"**Aşağı Risk** — Stress göstəricisi: {pred:.3f}")
     elif pred < 0.70:
@@ -395,8 +386,6 @@ if st.button("🔮 Proqnoz Et"):
 
     st.markdown("---")
 
-else:
-    st.info("Proqnoz üçün ssenari seçin və ya dəyərləri daxil edin.")
 
 
 # =========================================================
