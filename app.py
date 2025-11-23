@@ -166,22 +166,47 @@ if st.button("🔮 Proqnoz Et"):
 
     st.markdown("---")
 
-    show_plots = st.checkbox("📊 Qrafikləri göstər")
-    if show_plots:
-        col1, col2 = st.columns(2)
-        with col1:
-            st.image("images/fig4_shap_clean.png")
-        with col2:
-            st.image("images/fig1_prediction_vs_actual.png")
+    # show_plots = st.checkbox("📊 Qrafikləri göstər")
+    # if show_plots:
+    #     col1, col2 = st.columns(2)
+    #     with col1:
+    #         st.image("images/fig4_shap_clean.png")
+    #     with col2:
+    #         st.image("images/fig1_prediction_vs_actual.png")
 
-        col3, col4 = st.columns(2)
-        with col3:
-            st.image("images/fig3_pca.png")
-        with col4:
-            st.image("images/fig2_model_comparison.png")
+    #     col3, col4 = st.columns(2)
+    #     with col3:
+    #         st.image("images/fig3_pca.png")
+    #     with col4:
+    #         st.image("images/fig2_model_comparison.png")
 
-        st.image("images/fusion_architecture.png")
+    #     st.image("images/fusion_architecture.png")
 
 
 else:
     st.info("Proqnoz üçün ssenari seçin və ya dəyərləri daxil edin.")
+
+# =========================================================
+# 📊 QRAFİK ANALİTİKA — EXPANDER VERSİYASI 
+# =========================================================
+
+# st.markdown("---")
+st.subheader("📊 Analitik Qrafiklər")
+
+with st.expander("📌 Qrafikləri göstər (açmaq üçün klikləyin)"):
+    st.write("Aşağıdakı qrafiklər modelin işləmə prinsiplərini və nəticələrini nümayiş etdirir:")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.image("images/fig4_shap_clean.png", caption="SHAP təsir gücü", use_column_width=True)
+    with col2:
+        st.image("images/fig1_prediction_vs_actual.png", caption="Prediction vs Actual", use_column_width=True)
+
+    col3, col4 = st.columns(2)
+    with col3:
+        st.image("images/fig3_pca.png", caption="BERT PCA Analizi", use_column_width=True)
+    with col4:
+        st.image("images/fig2_model_comparison.png", caption="Model müqayisələri", use_column_width=True)
+
+    st.image("images/fusion_architecture.png", caption="Fusion Model Architecture", use_column_width=True)
+
