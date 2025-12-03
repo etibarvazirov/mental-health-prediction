@@ -38,23 +38,23 @@ st.markdown("""
 
     /* ====== STREAMLIT PROFIL ICON GIZLƏTME HACK ====== */
 
-    /* This hides the Streamlit Cloud account/profile icon */
-    div[data-testid="stStatusWidget"] {
+  /* FORCE-HIDE Streamlit Cloud status/profil widget by pushing it offscreen */
+    [data-testid="stStatusWidget"] {
+        position: fixed !important;
+        bottom: -200px !important;
+        right: -200px !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    /* Additional overlay elements */
+    [data-testid="stStatusContainer"] {
         display: none !important;
-        visibility: hidden !important;
     }
 
-    /* Sometimes Streamlit uses another container name */
-    div[data-testid="stToolbar"] {
+    [data-testid="stDecoration"] {
         display: none !important;
-        visibility: hidden !important;
     }
-
-    /* Backup – hides footer if visible */
-    footer {
-        visibility: hidden !important;
-    }
-
 </style>
 """, unsafe_allow_html=True)
 
