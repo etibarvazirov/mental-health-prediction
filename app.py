@@ -14,18 +14,11 @@ st.set_page_config(page_title="Stress və Psixoloji Sağlamlıq Proqnozu", layou
 # =======================
 # CUSTOM HEADER (NAVBAR)
 # =======================
-st.markdown("""
 
-    <style>
-        /* Profil ikonunun sağ aşağıda olduğu StreamlitCloud container */
-        div[data-testid="stStatusWidget"] {
-            display: none !important;
-            visibility: hidden !important;
-        }
-    </style>
-    
-    <style>
-    
+st.markdown("""
+<style>
+
+    /* ====== NAVBAR DESIGN ====== */
     .navbar {
         background: linear-gradient(90deg, #7f5af0, #5f4bb6);
         padding: 18px;
@@ -43,12 +36,56 @@ st.markdown("""
         letter-spacing: 1px;
     }
 
-    </style>
+    /* ====== STREAMLIT PROFIL ICON GIZLƏTME HACK ====== */
 
-    <div class="navbar">
-        <h1>🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi</h1>
-    </div>
+    /* This hides the Streamlit Cloud account/profile icon */
+    div[data-testid="stStatusWidget"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Sometimes Streamlit uses another container name */
+    div[data-testid="stToolbar"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Backup – hides footer if visible */
+    footer {
+        visibility: hidden !important;
+    }
+
+</style>
 """, unsafe_allow_html=True)
+
+
+# st.markdown("""
+    
+#     <style>
+    
+#     .navbar {
+#         background: linear-gradient(90deg, #7f5af0, #5f4bb6);
+#         padding: 18px;
+#         border-radius: 10px;
+#         text-align: center;
+#         margin-bottom: 20px;
+#         box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+#     }
+
+#     .navbar h1 {
+#         color: white;
+#         font-size: 32px;
+#         margin: 0;
+#         font-weight: 700;
+#         letter-spacing: 1px;
+#     }
+
+#     </style>
+
+#     <div class="navbar">
+#         <h1>🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi</h1>
+#     </div>
+# """, unsafe_allow_html=True)
 
 
 # st.title("🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi")
