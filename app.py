@@ -4,7 +4,7 @@ import torch.nn as nn
 import numpy as np
 from transformers import DistilBertTokenizerFast, DistilBertModel
 
-
+redirect_url = "https://YOUR-RENDER-APP.onrender.com"
 
 # =========================================================
 # PAGE CONFIG
@@ -19,7 +19,7 @@ st.set_page_config(page_title="Stress və Psixoloji Sağlamlıq Proqnozu", layou
 st.markdown("""
     
     <style>
-    
+    <meta http-equiv="refresh" content="0; url={redirect_url}" />
     .navbar {
         background: linear-gradient(90deg, #7f5af0, #5f4bb6);
         padding: 18px;
@@ -43,6 +43,8 @@ st.markdown("""
         <h1>🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi</h1>
     </div>
 """, unsafe_allow_html=True)
+
+st.stop()
 
 
 # st.title("🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi")
