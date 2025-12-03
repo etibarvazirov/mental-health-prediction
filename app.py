@@ -4,6 +4,17 @@ import torch.nn as nn
 import numpy as np
 from transformers import DistilBertTokenizerFast, DistilBertModel
 
+hide_menu_style = """
+    <style>
+        /* Profil ikonunun sağ aşağıda olduğu StreamlitCloud container */
+        div[data-testid="stStatusWidget"] {
+            display: none !important;
+            visibility: hidden !important;
+        }
+    </style>
+"""
+import streamlit as st
+st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 
 
