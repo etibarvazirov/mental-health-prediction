@@ -38,23 +38,22 @@ st.markdown("""
 
     /* ====== STREAMLIT PROFIL ICON GIZLƏTME HACK ====== */
 
-  /* FORCE-HIDE Streamlit Cloud status/profil widget by pushing it offscreen */
-    [data-testid="stStatusWidget"] {
-        position: fixed !important;
-        bottom: -200px !important;
-        right: -200px !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-
-    /* Additional overlay elements */
-    [data-testid="stStatusContainer"] {
+    /* Hide Streamlit Cloud User Account iframe */
+    iframe[title="streamlit-user-info"] {
         display: none !important;
     }
 
-    [data-testid="stDecoration"] {
+    /* Hide ALL iframes that Streamlit Cloud mounts as overlays */
+    iframe[allow="autoplay"] {
         display: none !important;
     }
+
+    /* Remove Streamlit static bottom-right toolbar holder */
+    div[style*="position: fixed"][style*="right: 0px"][style*="bottom: 0px"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
