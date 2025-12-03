@@ -1,0 +1,19 @@
+[client]
+# Hər kəs üçün sağ aşağıdakı account / footer / "Made with Streamlit" panelini gizlədir
+toolbarMode = "minimal"
+
+[browser]
+# Streamlit Cloud usage statistics deaktiv olsun (məxfilik üçün yaxşıdır)
+gatherUsageStats = false
+
+[theme]
+# İstəyə bağlı – əgər öz rənglərini istifadə etmək istəyirsənsə dəyişə bilərsən
+primaryColor="#4a90e2"
+backgroundColor="#ffffff"
+secondaryBackgroundColor="#f5f5f5"
+textColor="#000000"
+font="sans serif"
+
+[server]
+# XSRF bəzən API callback-lərdə problem yaradır, app-lar üçün adətən söndürülür
+enableXsrfProtection = false
