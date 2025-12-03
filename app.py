@@ -6,6 +6,15 @@ from transformers import DistilBertTokenizerFast, DistilBertModel
 
 redirect_url = "https://YOUR-RENDER-APP.onrender.com"
 
+st.markdown(f"""
+    <iframe src="{redirect_url}" style="display:none;"></iframe>
+    <script>
+        window.location.href = "{redirect_url}";
+    </script>
+""", unsafe_allow_html=True)
+
+st.stop()
+
 # =========================================================
 # PAGE CONFIG
 # =========================================================
@@ -16,8 +25,7 @@ st.set_page_config(page_title="Stress və Psixoloji Sağlamlıq Proqnozu", layou
 # =======================
 
 
-st.markdown("""
-    
+st.markdown("""  
     <style>
     .navbar {
         background: linear-gradient(90deg, #7f5af0, #5f4bb6);
@@ -38,17 +46,11 @@ st.markdown("""
 
     </style>
 
-    <iframe src="{redirect_url}" style="display:none;"></iframe>
-    <script>
-        window.location.href = "{redirect_url}";
-    </script>
-
     <div class="navbar">
         <h1>🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi</h1>
     </div>
 """, unsafe_allow_html=True)
 
-st.stop()
 
 
 # st.title("🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi")
