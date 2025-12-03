@@ -5,6 +5,8 @@ import numpy as np
 from transformers import DistilBertTokenizerFast, DistilBertModel
 
 
+
+
 # =========================================================
 # PAGE CONFIG
 # =========================================================
@@ -15,6 +17,11 @@ st.set_page_config(page_title="Stress və Psixoloji Sağlamlıq Proqnozu", layou
 # =======================
 st.markdown("""
     <style>
+
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
     .navbar {
         background: linear-gradient(90deg, #7f5af0, #5f4bb6);
         padding: 18px;
