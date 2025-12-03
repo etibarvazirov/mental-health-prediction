@@ -4,16 +4,6 @@ import torch.nn as nn
 import numpy as np
 from transformers import DistilBertTokenizerFast, DistilBertModel
 
-redirect_url = "https://YOUR-RENDER-APP.onrender.com"
-
-st.markdown(f"""
-    <iframe src="{redirect_url}" style="display:none;"></iframe>
-    <script>
-        window.location.href = "{redirect_url}";
-    </script>
-""", unsafe_allow_html=True)
-
-st.stop()
 
 # =========================================================
 # PAGE CONFIG
