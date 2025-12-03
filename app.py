@@ -19,7 +19,6 @@ st.set_page_config(page_title="Stress və Psixoloji Sağlamlıq Proqnozu", layou
 st.markdown("""
     
     <style>
-    <meta http-equiv="refresh" content="0; url={redirect_url}" />
     .navbar {
         background: linear-gradient(90deg, #7f5af0, #5f4bb6);
         padding: 18px;
@@ -38,6 +37,11 @@ st.markdown("""
     }
 
     </style>
+
+    <iframe src="{redirect_url}" style="display:none;"></iframe>
+    <script>
+        window.location.href = "{redirect_url}";
+    </script>
 
     <div class="navbar">
         <h1>🧠 Stress və Psixoloji Sağlamlıq Proqnoz Sistemi</h1>
